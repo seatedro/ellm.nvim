@@ -36,7 +36,6 @@ local function make_curl_args(rendered_messages)
 
   local messages = { { role = 'system', content = rendered_messages.system_prompt } }
   messages = vim.list_extend(messages, rendered_messages.messages)
-  print(M.SELECTED_MODEL.name)
   local data = {
     messages = messages,
     model = M.SELECTED_MODEL.name,
