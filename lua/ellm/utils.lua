@@ -59,10 +59,14 @@ function M.write_content_at_end(content)
   vim.schedule(function()
     local current_pos = vim.api.nvim_win_get_cursor(0)
 
-    local srow, erow, scol, ecol = -1, -1, -1, -1
+    local buf = 0 -- Use the current buffer
+    local last_line = vim.api.nvim_buf_line_count(buf)
+    local last_line_content = vim.api.nvim_buf_get_lines(buf, last_line - 1, last_line, false)[1]
+    local last_col = #last_line_content
+
     vim.cmd 'undojoin'
     local lines = vim.split(content, '\n')
-    api.nvim_buf_set_text(0, srow, scol, erow, ecol, lines)
+    api.nvim_buf_set_text(buf, last_line - 1, last_col, last_line - 1, last_col, lines)
 
     vim.cmd 'normal! G'
     api.nvim_win_set_cursor(0, current_pos)

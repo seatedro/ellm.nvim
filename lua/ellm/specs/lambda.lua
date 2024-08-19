@@ -1,25 +1,18 @@
 local M = {}
-M.API_KEY_NAME = 'OPENAI_API_KEY'
-M.URL = 'https://api.openai.com/v1/chat/completions'
 
-M.SELECTED_MODEL = { name = 'gpt-4o-mini' }
-
+M.API_KEY_NAME = 'LAMBDA_LABS_API_KEY'
+M.URL = 'https://api.lambdalabs.com/v1/chat/completions'
 M.PROMPT_TEMPLATES = {
-  --- this prompt should let the model yap into a separate buffer
-  BUFFER_MODE_SYSTEM_PROMPT = 'groq/buffer_mode_system_prompt.xml.jinja',
-  BUFFER_MODE_USER_PROMPT = 'groq/buffer_mode_user_prompt.xml.jinja',
+  BUFFER_MODE_SYSTEM_PROMPT = 'nous_research/buffer_mode_system_prompt.xml.jinja',
+  BUFFER_MODE_USER_PROMPT = 'nous_research/buffer_mode_user_prompt.xml.jinja',
 
-  --- this prompt should let the model yap into a separate buffer
-  PROJECT_MODE_SYSTEM_PROMPT = 'groq/buffer_mode_system_prompt.xml.jinja',
-  PROJECT_MODE_USER_PROMPT = 'anthropic/project_mode_user_prompt.xml.jinja',
-
-  --- this prompt has to be written to output valid code
-  REPLACE_MODE_SYSTEM_PROMPT = 'groq/replace_mode_system_prompt.xml.jinja',
-  REPLACE_MODE_USER_PROMPT = 'groq/replace_mode_user_prompt.xml.jinja',
+  PROJECT_MODE_SYSTEM_PROMPT = 'nous_research/project_mode_system_prompt.xml.jinja',
+  PROJECT_MODE_USER_PROMPT = 'nous_research/project_mode_user_prompt.xml.jinja',
 }
+M.SELECTED_MODEL = { name = 'hermes-3-llama-3.1-405b-fp8' }
 
 local API_ERROR_MESSAGE = [[
-ERROR: openai api key is set to %s and is missing from your environment variables.
+ERROR: lambda labs api key is set to %s and is missing from your environment variables.
 
 Load somewhere safely from config `export %s=<api_key>`]]
 

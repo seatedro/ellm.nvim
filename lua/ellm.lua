@@ -350,4 +350,147 @@ api.nvim_set_keymap('n', '<Esc>', '', {
   end,
 })
 
+--- Invokes an LLM via a supported API spec in "replace" mode with context
+---
+--- Must provide the function for constructing cURL arguments and a handler
+--- function for processing server-sent events.
+---
+---@param opts { system_prompt_template: string, user_prompt_template: string }
+---@param make_job_fn fun(rendered_messages: { system_prompt: string, messages: { role: string, content: string }[] }, writer_fn: fun(content: string), completed_callback_fn: fun())
+function M.invoke_llm_replace_with_context_mode(opts, make_job_fn)
+  local template_path = Path:new(vim.fn.expand(utils.TEMPLATE_DIRECTORY))
+  local cache_path = Path:new(vim.fn.expand(utils.CACHE_DIRECTORY))
+  api.nvim_clear_autocmds { group = group }
+
+  local visual_selection = utils.get_visual_selection()
+
+  if opts.system_prompt_template == nil or opts.user_prompt_template == nil then
+    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/ellm.nvim/', 1)
+  end
+
+  local selected_files = {}
+  pickers.find_files_custom_fd({}, function(items)
+    selected_files = items
+
+    local prompt_args = {
+      system_prompt_template = opts.system_prompt_template,
+      user_prompt_template = opts.user_prompt_template,
+      user_prompt_args = {
+        code_snippet = visual_selection,
+        selected_files = selected_files,
+      },
+    }
+
+    rendered_messages = {
+      system_prompt = utils.make_prompt_from_template((template_path / opts.system_prompt_template):absolute(), prompt_args),
+      messages = {},
+    }
+
+    local rendered_prompt = utils.make_prompt_from_template((template_path / opts.user_prompt_template):absolute(), prompt_args)
+    table.insert(rendered_messages.messages, { role = 'user', content = rendered_prompt })
+
+    local prompt_save_path = cache_path / tostring(os.time())
+    local filepath = prompt_save_path / 'messages.json'
+    if not filepath:parent():mkdir { parents = true, exists_ok = true } then
+      print('Error creating directory: ' .. filepath:error())
+      return
+    end
+
+    api.nvim_feedkeys('c', 'nx', false)
+
+    local crow, _ = unpack(api.nvim_win_get_cursor(0))
+    local stream_end_extmark_id = api.nvim_buf_set_extmark(0, ellm_ns, crow - 1, -1, {})
+    local active_job = make_job_fn(rendered_messages, function(content)
+      utils.write_content_at_extmark(content, ellm_ns, stream_end_extmark_id)
+    end, function()
+      vim.schedule(function()
+        api.nvim_buf_del_extmark(0, ellm_ns, stream_end_extmark_id)
+        filepath:write(vim.json.encode(rendered_messages), 'w')
+      end)
+    end)
+    active_job:start()
+    api.nvim_create_autocmd('User', {
+      group = group,
+      pattern = 'LLM_Escape',
+      callback = function()
+        if active_job.is_shutdown ~= true then
+          active_job:shutdown()
+          print 'LLM streaming cancelled'
+        end
+      end,
+    })
+  end)
+end
+
+--- Invokes an LLM via a supported API spec in "replace" mode with context
+---
+--- Must provide the function for constructing cURL arguments and a handler
+--- function for processing server-sent events.
+---
+---@param opts { system_prompt_template: string, user_prompt_template: string }
+---@param make_job_fn fun(rendered_messages: { system_prompt: string, messages: { role: string, content: string }[] }, writer_fn: fun(content: string), completed_callback_fn: fun())
+-- Add this new function to the kznllm.lua file
+function M.invoke_llm_replace_with_current_file_context(opts, make_job_fn)
+  local template_path = Path:new(vim.fn.expand(utils.TEMPLATE_DIRECTORY))
+  local cache_path = Path:new(vim.fn.expand(utils.CACHE_DIRECTORY))
+  api.nvim_clear_autocmds { group = group }
+
+  local visual_selection = utils.get_visual_selection()
+  local current_file_content = table.concat(api.nvim_buf_get_lines(0, 0, -1, false), '\n')
+  local current_file_path = api.nvim_buf_get_name(0)
+
+  if opts.system_prompt_template == nil or opts.user_prompt_template == nil then
+    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/kznllm.nvim/', 1)
+  end
+
+  local prompt_args = {
+    system_prompt_template = opts.system_prompt_template,
+    user_prompt_template = opts.user_prompt_template,
+    user_prompt_args = {
+      code_snippet = visual_selection,
+      current_file_content = current_file_content,
+      current_file_path = current_file_path,
+    },
+  }
+
+  rendered_messages = {
+    system_prompt = utils.make_prompt_from_template((template_path / opts.system_prompt_template):absolute(), prompt_args),
+    messages = {},
+  }
+
+  local rendered_prompt = utils.make_prompt_from_template((template_path / opts.user_prompt_template):absolute(), prompt_args)
+  table.insert(rendered_messages.messages, { role = 'user', content = rendered_prompt })
+
+  local prompt_save_path = cache_path / tostring(os.time())
+  local filepath = prompt_save_path / 'messages.json'
+  if not filepath:parent():mkdir { parents = true, exists_ok = true } then
+    print('Error creating directory: ' .. filepath:error())
+    return
+  end
+
+  api.nvim_feedkeys('c', 'nx', false)
+
+  local crow, _ = unpack(api.nvim_win_get_cursor(0))
+  local stream_end_extmark_id = api.nvim_buf_set_extmark(0, ellm_ns, crow - 1, -1, {})
+  local active_job = make_job_fn(rendered_messages, function(content)
+    utils.write_content_at_extmark(content, ellm_ns, stream_end_extmark_id)
+  end, function()
+    vim.schedule(function()
+      api.nvim_buf_del_extmark(0, ellm_ns, stream_end_extmark_id)
+      filepath:write(vim.json.encode(rendered_messages), 'w')
+    end)
+  end)
+  active_job:start()
+  api.nvim_create_autocmd('User', {
+    group = group,
+    pattern = 'LLM_Escape',
+    callback = function()
+      if active_job.is_shutdown ~= true then
+        active_job:shutdown()
+        print 'LLM streaming cancelled'
+      end
+    end,
+  })
+end
+
 return M
