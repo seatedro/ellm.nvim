@@ -5,7 +5,7 @@ local pickers = require 'ellm.pickers'
 local M = {}
 local api = vim.api
 
-local ellm_ns = api.nvim_create_namespace 'kznllm_stream'
+local ellm_ns = api.nvim_create_namespace 'ellm_stream'
 
 if vim.fn.executable 'minijinja-cli' ~= 1 then
   error("Can't find minijinja-cli, download it from https://github.com/mitsuhiko/minijinja or add it to $PATH", 1)

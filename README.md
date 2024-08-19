@@ -28,7 +28,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) to understand the typical development workfl
 - **Behavior**: 
   - (initial) opens up a buffer, copies in the prompt template + arguments, and then streams the answer out at the bottom.
   - (debug / render input templates) if you hit `leader + d` while in the completion buffer, it will interrupt (if it is still writing) and open up a buffer with a debug template showing the rendered input context
-  - (quit) hit `leader + w` to interrupt + quit and save the buffer to `$HOME/.cache/nvim/ellm/history` (`vim.fn.stdpath 'cache' .. '/kznllm/history'`) as `<timestamp>/output.xml` along with `args.json` and returns you back to the original buffer. You can also interrupt + quit without saving + delete the buffer from history using `leader + q`
+  - (quit) hit `leader + w` to interrupt + quit and save the buffer to `$HOME/.cache/nvim/ellm/history` (`vim.fn.stdpath 'cache' .. '/ellm/history'`) as `<timestamp>/output.xml` along with `args.json` and returns you back to the original buffer. You can also interrupt + quit without saving + delete the buffer from history using `leader + q`
   - (search history) if you quit with `leader + w` the buffer stays listed and you can find it in open buffers again (e.g. using kickstart defaults it would be `space + space`), if you quit with `leader + q` it deletes the buffer and won't clutter up open buffers list
 
 https://github.com/user-attachments/assets/89331af3-3c69-41e3-9293-83b4549a6025
@@ -60,7 +60,7 @@ export GROQ_API_KEY=gsk_...
   'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local ellm = require 'kznllm'
+    local ellm = require 'ellm'
     local utils = require 'ellm.utils'
     local spec = require 'ellm.specs.anthropic'
 
@@ -100,7 +100,7 @@ for groq
   'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local ellm = require 'kznllm'
+    local ellm = require 'ellm'
     local utils = require 'ellm.utils'
     local spec = require 'ellm.specs.openai'
 
@@ -116,7 +116,7 @@ for local openai server
   'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local ellm = require 'kznllm'
+    local ellm = require 'ellm'
     local utils = require 'ellm.utils'
     local spec = require 'ellm.specs.openai'
 
@@ -135,7 +135,7 @@ for lambda labs
   'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local ellm = require 'kznllm'
+    local ellm = require 'ellm'
     local utils = require 'ellm.utils'
     local spec = require 'ellm.specs.openai'
 
