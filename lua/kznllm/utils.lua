@@ -3,10 +3,10 @@ local M = {}
 local api = vim.api
 
 -- Default lazy plugin location... not sure how to get the plugin dir neatly, will likely need to be overwritten by user in init.lua
-M.TEMPLATE_DIRECTORY = vim.fn.stdpath 'data' .. '/lazy/kznllm/templates'
+M.TEMPLATE_DIRECTORY = vim.fn.stdpath 'data' .. '/lazy/ellm/templates'
 
 -- Specify the path where you want to save the file
-M.CACHE_DIRECTORY = vim.fn.stdpath 'cache' .. '/kznllm/history'
+M.CACHE_DIRECTORY = vim.fn.stdpath 'cache' .. '/ellm/history'
 
 --- Inserts content at the current cursor position in the active Neovim buffer.
 ---

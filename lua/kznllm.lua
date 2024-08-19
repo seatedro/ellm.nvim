@@ -1,11 +1,11 @@
 local Path = require 'plenary.path'
 
-local utils = require 'kznllm.utils'
-local pickers = require 'kznllm.pickers'
+local utils = require 'ellm.utils'
+local pickers = require 'ellm.pickers'
 local M = {}
 local api = vim.api
 
-local kznllm_ns = api.nvim_create_namespace 'kznllm_stream'
+local ellm_ns = api.nvim_create_namespace 'kznllm_stream'
 
 if vim.fn.executable 'minijinja-cli' ~= 1 then
   error("Can't find minijinja-cli, download it from https://github.com/mitsuhiko/minijinja or add it to $PATH", 1)
@@ -34,7 +34,7 @@ function M.invoke_llm_project_mode(opts, make_job_fn)
   local visual_selection = utils.get_visual_selection()
 
   if opts.system_prompt_template == nil or opts.user_prompt_template == nil then
-    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/kznllm.nvim/', 1)
+    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/ellm.nvim/', 1)
   end
 
   local selected_files = {}
@@ -168,7 +168,7 @@ function M.invoke_llm_buffer_mode(opts, make_job_fn)
   local visual_selection = utils.get_visual_selection()
 
   if opts.system_prompt_template == nil or opts.user_prompt_template == nil then
-    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/kznllm.nvim/', 1)
+    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/ellm.nvim/', 1)
   end
 
   local user_input = nil
@@ -305,7 +305,7 @@ function M.invoke_llm_replace_mode(opts, make_job_fn)
   }
 
   if opts.system_prompt_template == nil or opts.user_prompt_template == nil then
-    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/kznllm.nvim/', 1)
+    error('You must set `system_prompt_template` and `user_prompt_template`, see the project repo for more info https://github.com/chottolabs/ellm.nvim/', 1)
   end
 
   rendered_messages = {
@@ -321,12 +321,12 @@ function M.invoke_llm_replace_mode(opts, make_job_fn)
   api.nvim_feedkeys('c', 'nx', false)
 
   local crow, _ = unpack(api.nvim_win_get_cursor(0))
-  local stream_end_extmark_id = api.nvim_buf_set_extmark(0, kznllm_ns, crow - 1, -1, {})
+  local stream_end_extmark_id = api.nvim_buf_set_extmark(0, ellm_ns, crow - 1, -1, {})
   local active_job = make_job_fn(rendered_messages, function(content)
-    utils.write_content_at_extmark(content, kznllm_ns, stream_end_extmark_id)
+    utils.write_content_at_extmark(content, ellm_ns, stream_end_extmark_id)
   end, function()
     vim.schedule(function()
-      api.nvim_buf_del_extmark(0, kznllm_ns, stream_end_extmark_id)
+      api.nvim_buf_del_extmark(0, ellm_ns, stream_end_extmark_id)
     end)
   end)
   active_job:start()

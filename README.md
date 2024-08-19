@@ -1,3 +1,8 @@
+# ellm.nvim
+This is literally just a fork of the goated [kznllm.nvim](https://github.com/chottolabs/kznllm.nvim) repo, but with incremental features that i personally want. Go star that repo if you want to show support.
+
+
+# Original README
 Based on [dingllm.nvim](https://github.com/yacineMTB/dingllm.nvim) - but it'll probably diverge quite a bit from the original state.
 
 - adds some docstring annotations
@@ -23,7 +28,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) to understand the typical development workfl
 - **Behavior**: 
   - (initial) opens up a buffer, copies in the prompt template + arguments, and then streams the answer out at the bottom.
   - (debug / render input templates) if you hit `leader + d` while in the completion buffer, it will interrupt (if it is still writing) and open up a buffer with a debug template showing the rendered input context
-  - (quit) hit `leader + w` to interrupt + quit and save the buffer to `$HOME/.cache/nvim/kznllm/history` (`vim.fn.stdpath 'cache' .. '/kznllm/history'`) as `<timestamp>/output.xml` along with `args.json` and returns you back to the original buffer. You can also interrupt + quit without saving + delete the buffer from history using `leader + q`
+  - (quit) hit `leader + w` to interrupt + quit and save the buffer to `$HOME/.cache/nvim/ellm/history` (`vim.fn.stdpath 'cache' .. '/kznllm/history'`) as `<timestamp>/output.xml` along with `args.json` and returns you back to the original buffer. You can also interrupt + quit without saving + delete the buffer from history using `leader + q`
   - (search history) if you quit with `leader + w` the buffer stays listed and you can find it in open buffers again (e.g. using kickstart defaults it would be `space + space`), if you quit with `leader + q` it deletes the buffer and won't clutter up open buffers list
 
 https://github.com/user-attachments/assets/89331af3-3c69-41e3-9293-83b4549a6025
@@ -40,7 +45,7 @@ https://github.com/user-attachments/assets/cfa01851-f2f5-42b5-b042-0bb1fc55e3f7
 - **Usage**: (1) make a visual selection (2) `leader + Kr`
 - **Behavior**: replaces current selection and rewrites the selection based on context provdied by comments + fixing any errors 
 
-https://github.com/chottolabs/kznllm.nvim/assets/171991982/39da67df-1ebc-4866-b563-f6b30d393162
+https://github.com/chottolabs/ellm.nvim/assets/171991982/39da67df-1ebc-4866-b563-f6b30d393162
 
 ## Usage
 
@@ -52,31 +57,31 @@ export GROQ_API_KEY=gsk_...
 
 ```lua
 {
-  'chottolabs/kznllm.nvim',
+  'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local kznllm = require 'kznllm'
-    local utils = require 'kznllm.utils'
-    local spec = require 'kznllm.specs.anthropic'
+    local ellm = require 'kznllm'
+    local utils = require 'ellm.utils'
+    local spec = require 'ellm.specs.anthropic'
 
     utils.TEMPLATE_DIRECTORY = vim.fn.expand(self.dir) .. '/templates'
 
     local function llm_buffer()
-      kznllm.invoke_llm_buffer_mode({
+      ellm.invoke_llm_buffer_mode({
         system_prompt_template = spec.PROMPT_TEMPLATES.BUFFER_MODE_SYSTEM_PROMPT,
         user_prompt_template = spec.PROMPT_TEMPLATES.BUFFER_MODE_USER_PROMPT,
       }, spec.make_job)
     end
 
     local function llm_project()
-      kznllm.invoke_llm_project_mode({
+      ellm.invoke_llm_project_mode({
         system_prompt_template = spec.PROMPT_TEMPLATES.PROJECT_MODE_SYSTEM_PROMPT,
         user_prompt_template = spec.PROMPT_TEMPLATES.PROJECT_MODE_USER_PROMPT,
       }, spec.make_job)
     end
 
     local function llm_replace()
-      kznllm.invoke_llm_replace_mode({
+      ellm.invoke_llm_replace_mode({
         system_prompt_template = spec.PROMPT_TEMPLATES.REPLACE_MODE_SYSTEM_PROMPT,
         user_prompt_template = spec.PROMPT_TEMPLATES.REPLACE_MODE_USER_PROMPT,
       }, spec.make_job)
@@ -92,12 +97,12 @@ export GROQ_API_KEY=gsk_...
 for groq
 ```lua
 {
-  'chottolabs/kznllm.nvim',
+  'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local kznllm = require 'kznllm'
-    local utils = require 'kznllm.utils'
-    local spec = require 'kznllm.specs.openai'
+    local ellm = require 'kznllm'
+    local utils = require 'ellm.utils'
+    local spec = require 'ellm.specs.openai'
 
     ...
   end,
@@ -108,12 +113,12 @@ for local openai server
 (e.g. `vllm serve` w/ `--api-key <token>` and `--served-model-name meta-llama/Meta-Llama-3.1-8B-Instruct`) set `VLLM_API_KEY=<token>`
 ```lua
 {
-  'chottolabs/kznllm.nvim',
+  'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local kznllm = require 'kznllm'
-    local utils = require 'kznllm.utils'
-    local spec = require 'kznllm.specs.openai'
+    local ellm = require 'kznllm'
+    local utils = require 'ellm.utils'
+    local spec = require 'ellm.specs.openai'
 
     spec.SELECTED_MODEL = { name = 'meta-llama/Meta-Llama-3.1-8B-Instruct', max_tokens = 8192 }
     spec.URL = 'http://research.local:8000/v1/chat/completions'
@@ -127,12 +132,12 @@ for local openai server
 for lambda labs
 ```lua
 {
-  'chottolabs/kznllm.nvim',
+  'chottolabs/ellm.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function(self)
-    local kznllm = require 'kznllm'
-    local utils = require 'kznllm.utils'
-    local spec = require 'kznllm.specs.openai'
+    local ellm = require 'kznllm'
+    local utils = require 'ellm.utils'
+    local spec = require 'ellm.specs.openai'
 
     spec.SELECTED_MODEL = { name = 'hermes-3-llama-3.1-405b-fp8' }
     spec.API_KEY_NAME = 'LAMBDA_LABS_API_KEY'
@@ -141,14 +146,14 @@ for lambda labs
     utils.TEMPLATE_DIRECTORY = vim.fn.expand(self.dir) .. '/templates/'
 
     local function llm_buffer()
-      kznllm.invoke_llm_buffer_mode({
+      ellm.invoke_llm_buffer_mode({
         system_prompt_template = spec.PROMPT_TEMPLATES.NOUS_RESEARCH.BUFFER_MODE_SYSTEM_PROMPT,
         user_prompt_template = spec.PROMPT_TEMPLATES.NOUS_RESEARCH.BUFFER_MODE_USER_PROMPT,
       }, spec.make_job)
     end
 
     local function llm_project()
-      kznllm.invoke_llm_project_mode({
+      ellm.invoke_llm_project_mode({
         system_prompt_template = spec.PROMPT_TEMPLATES.NOUS_RESEARCH.PROJECT_MODE_SYSTEM_PROMPT,
         user_prompt_template = spec.PROMPT_TEMPLATES.NOUS_RESEARCH.PROJECT_MODE_USER_PROMPT,
       }, spec.make_job)
